@@ -1,0 +1,15 @@
+Source: coredoc
+Section: admin
+Priority: optional
+Maintainer: coredoc contributors <noreply@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, python3-setuptools, python3-wheel
+Standards-Version: 4.6.2
+Homepage: https://github.com/CoreOG-fr/coredoc
+Rules-Requires-Root: no
+
+Package: coredoc
+Architecture: all
+Depends: ${python3:Depends}, ${misc:Depends}, python3-textual
+Description: modular TUI-based Linux diagnostics and first-aid tool
+ coredoc wraps fragmented Linux diagnostic tools into a coherent Textual TUI
+ that explains what is broken and what to check next.

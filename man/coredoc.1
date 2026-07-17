@@ -1,0 +1,21 @@
+.TH COREDOC 1 "July 2026" "coredoc 0.2.0" "User Commands"
+.SH NAME
+coredoc \- modular Linux diagnostics and first-aid TUI
+.SH SYNOPSIS
+.B coredoc
+[B--jsonR] [B--doctorR DOCTOR] [B--appR NAME] [B--support-bundleR]
+.SH DESCRIPTION
+coredoc launches a Textual terminal interface for Linux diagnostics. It can also print structured JSON for individual diagnostic modules.
+.SH OPTIONS
+.TP
+.B --json
+Print JSON instead of launching the TUI.
+.TP
+.B --doctor DOCTOR
+Run one doctor: audio, wayland, sleep, clean, logs, hardware, permissions.
+.TP
+.B --app NAME
+Application name for the clean doctor.
+.TP
+.B --support-bundle
+Write a sanitised support bundle tarball.

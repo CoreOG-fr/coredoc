@@ -1,0 +1,26 @@
+app-id: io.github.coredoc.coredoc
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: coredoc
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=system-bus
+  - --socket=session-bus
+  - --filesystem=host:ro
+  - --filesystem=xdg-run/pipewire-0
+  - --device=all
+modules:
+  - name: python3-textual
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app textual 'typing-extensions>=4.4'
+  - name: coredoc
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=/app .
+      - install -Dm644 man/coredoc.1 /app/share/man/man1/coredoc.1
+    sources:
+      - type: dir
+        path: ../..

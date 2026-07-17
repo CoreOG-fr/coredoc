@@ -1,0 +1,143 @@
+[[rules]]
+id = "systemd_degraded"
+title = "Systemd reports degraded system state"
+summary = "Failed or degraded system services often explain downstream symptoms. Inspect failed units before chasing app-level issues."
+finding_ids = ["core.system_degraded", "core.failed_units"]
+severity = "warn"
+confidence = 0.85
+impact = 0.8
+affected_modules = ["core", "logs"]
+[[rules.actions]]
+id = "show_failed_units"
+title = "Show failed units"
+description = "List failed systemd units so you can inspect the service that is degrading the system."
+safety = "safe"
+command = ["systemctl", "--failed", "--no-pager", "--plain"]
+
+[[rules]]
+id = "time_unsynced"
+title = "System clock is not synchronized"
+summary = "Time synchronization problems can break TLS, package repositories, log ordering, and distributed systems."
+finding_ids = ["core.time_unsynced"]
+severity = "warn"
+confidence = 0.8
+impact = 0.55
+affected_modules = ["core", "network"]
+[[rules.actions]]
+id = "show_time_status"
+title = "Show time sync status"
+description = "Display timedatectl status for manual review."
+safety = "safe"
+command = ["timedatectl", "status"]
+
+[[rules]]
+id = "disk_exhaustion"
+title = "Disk or inode exhaustion may be the root cause"
+summary = "Core storage pressure can break services, package operations, logins, and app profiles. Fix this before chasing app-level symptoms."
+finding_ids = ["core.disk_usage_critical", "core.inode_usage_critical"]
+severity = "error"
+confidence = 0.95
+impact = 1.0
+affected_modules = ["core", "logs", "clean"]
+[[rules.actions]]
+id = "review_disk_usage"
+title = "Review disk usage"
+description = "Inspect large directories and clean manually; coredoc will not delete files automatically."
+safety = "manual"
+command = ["df", "-h"]
+
+[[rules]]
+id = "pipewire_stack"
+title = "PipeWire audio/session stack is unhealthy"
+summary = "PipeWire or WirePlumber trouble can break audio routing and Wayland screen sharing at the same time."
+finding_ids = ["audio.server_unreachable", "audio.pipewire_service_inactive", "wayland.pipewire_inactive"]
+severity = "warn"
+confidence = 0.9
+impact = 0.85
+affected_modules = ["audio", "wayland"]
+[[rules.actions]]
+id = "restart_pipewire"
+title = "Restart PipeWire"
+description = "Restart the user PipeWire service. This can briefly interrupt audio and screen sharing."
+safety = "safe"
+command = ["systemctl", "--user", "restart", "pipewire"]
+
+[[rules]]
+id = "portal_stack"
+title = "XDG Desktop Portal stack is unhealthy"
+summary = "Portal failures commonly break Wayland screen sharing, Flatpak file pickers, and sandbox integration."
+finding_ids = ["wayland.portal_inactive", "wayland.no_portal_backend", "wayland.backend_mismatch", "wayland.portal_conflict_possible"]
+severity = "warn"
+confidence = 0.88
+impact = 0.8
+affected_modules = ["wayland", "permissions"]
+[[rules.actions]]
+id = "restart_portal"
+title = "Restart XDG Desktop Portal"
+description = "Restart the user portal dispatcher. This can refresh screen-sharing and file-picker portals."
+safety = "safe"
+command = ["systemctl", "--user", "restart", "xdg-desktop-portal"]
+
+[[rules]]
+id = "firmware_failures"
+title = "Firmware load failures detected"
+summary = "Missing firmware can make audio, Bluetooth, Wi-Fi, GPU, and sleep behavior fail in unrelated-looking ways."
+finding_ids = ["audio.firmware_errors", "logs.firmware_load_failure", "core.firmware_load_failure"]
+severity = "warn"
+confidence = 0.82
+impact = 0.8
+affected_modules = ["core", "audio", "hardware", "sleep", "logs"]
+[[rules.actions]]
+id = "review_firmware"
+title = "Review missing firmware"
+description = "Inspect the listed firmware errors and install the correct distro firmware package manually."
+safety = "manual"
+command = ["journalctl", "-k", "-b"]
+
+[[rules]]
+id = "network_core"
+title = "Core network connectivity is broken"
+summary = "A missing default route or DNS failure should be fixed before debugging browsers, package managers, or apps."
+finding_ids = ["core.no_default_route", "core.dns_failed"]
+severity = "warn"
+confidence = 0.9
+impact = 0.75
+affected_modules = ["core", "logs"]
+[[rules.actions]]
+id = "inspect_network"
+title = "Inspect network route"
+description = "Show default routes and interface addresses."
+safety = "safe"
+command = ["ip", "route", "show", "default"]
+
+[[rules]]
+id = "sleep_drain"
+title = "Suspend mode may cause sleep drain"
+summary = "s2idle is active while deep sleep is available. This is a common laptop battery-drain cause."
+finding_ids = ["sleep.s2idle_active"]
+severity = "warn"
+confidence = 0.75
+impact = 0.65
+affected_modules = ["sleep", "hardware"]
+[[rules.actions]]
+id = "review_sleep_mode"
+title = "Review sleep mode"
+description = "Inspect /sys/power/mem_sleep. Changing kernel parameters is manual."
+safety = "safe"
+command = ["cat", "/sys/power/mem_sleep"]
+
+[[rules]]
+id = "flatpak_broad_permissions"
+title = "Broad Flatpak permissions are present"
+summary = "Some Flatpak overrides grant broad host access. This is a security/privacy issue rather than a functional failure."
+finding_ids = ["permissions.broad_flatpak_overrides"]
+severity = "warn"
+confidence = 0.8
+impact = 0.55
+affected_modules = ["permissions"]
+[[rules.actions]]
+id = "show_flatpak_overrides"
+title = "Show Flatpak overrides"
+description = "Print Flatpak overrides for manual review."
+safety = "safe"
+command = ["flatpak", "override", "--show"]
